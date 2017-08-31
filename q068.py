@@ -97,10 +97,8 @@ for y in yCombUnique:
 solCat = []
 for s in sol:
     yx, a = s
-    sum = ""
-    for v in it.chain(*yx):
-        sum += str(int(v))
-    solCat.append((sum, a))
+    s = lm.combine_digit(map(int, it.chain(*yx)))
+    solCat.append((s, a))
 
 solCat = sorted(solCat, key=lambda x: int(x[0]))
 
