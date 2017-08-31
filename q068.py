@@ -10,92 +10,102 @@ import lcc.lcc_math as lm
 
 Algorithm:
 1. The problem can be written mathematically as
-        [A | I] * [x^T | y^T]^T = a * ones         Eq. 1
-   where,
-   A = I + circshift(I, [0, 1])
-   I = Identity matrix
-   [x^T | y^T]^T = 1:(N+1), but not in order, is the solution to the problem.
-   a = scalar factor
-   ones = Vector of all ones
+        x(1) + x(N/2 + 1) + x(N/2 + 2) = a
+        x(2) + x(N/2 + 2) + x(N/2 + 3) = a
+        ...
+        x(N/2) + x(N/2 + 1) + x(N)     = a
 
-2. Eq. 1 can be rewritten as
-        A*x + y = a * ones
-              y = (a * ones - A * x)                Eq. 2
-
-3. Finding a that corresponds to a particular selection of y.
-   a. First select x from a pool of 1:(N+1). There will be total of nCk combinations.
-      E.g. for N = 6, there are total of 20 combinations. For number, n not in x, put them
-      in y.
-   b. Finding a: a is the sum of the largest number in y and the two smallest number in x.
-
-TODO: find a
-
-4. Solving. For each combination:
-   a. Since the system is over-determinate, we need to fix x to find y.
-   b. There are multiple possibilities for xk, such that:
-        xk = x
-        xk[:j] = flipud(xk[:j]), where j = 1, ..., nchoosek(nHalf - 1, 2) (inclusive).
-   c. Solve Eq. 2 for each combination and for each xk to get [x^T | y^T]^T by using the
-      corresponding xk and a.
-   d. Since solution starts with smallest outer number, i.e. from y, and going clockwise, i.e.
-      in increasing index, and wrap around, so we need to map non-zero entries in A with xk
-      and its corresponding solution y.
-   e. Note that, for last index (nHalf - 1), xk needs to be flipped.
+   which is an under-determinate system and can be rearrange to
+        -a              + x(N/2 + 2) = -x(1) - x(N/2 + 1)
+        -a + x(N/2 + 2) + x(N/2 + 3) = -x(2)
+        -a + x(N/2 + 3) + x(N/2 + 4) = -x(3)
+         ...
+        -a + x(N)                    = -x(N/2) - x(N/2 + 1)
+   and can be written as:
+        A*x = -y - xi           Eq. 1
+   where
+   A = [-1, 1, 0, 0, 0, ...]
+       [-1, 1, 1, 0, 0, ...]
+       [-1, 0, 1, 1, 0, ...]
+       [-1, 0, 0, 1, 1, ...]
+       [-1, 0, 0, 0, 1, ...]
+   x = [a; x(N/2 + 2); ...; x(N)]
+   y = [x(1); x(2); ...; x(N/2)]
+   xi = [x(N/2 + 1); 0; ...; 0; x(N/2 + 1)]
+2. Because this is an under-determinate system, we need to fixed x(1) to x(N/2+1),
+   and there will be multiple solution. This will be the search space.
+3. First, we need to permute all possible combination for [x(1), ..., x(N/2)]. Then,
+   because the magin N-gon ring is circular symmetric, any circular shift of
+   [x(1), ..., x(N/2)] is non-unique and can be removed from the search space.
+4. Once non-unique combinations are removed, we can proceed to solve the problem. For each
+   unique combination [x(1), ..., x(N/2)]:
+   a. we have the corresponding set [x(N/2+1), ..., x(N)].
+   b. For each value in [x(N/2+1), ..., x(N)], fix x(N/2+1), and solve Eq.1 for x.
+   c. Solution is found when all [x(N/2+1), ..., x(N)] from solving Eq.1 is in the set
+      [x(N/2+1), ..., x(N)]
 """
 
+# This only works for N = 10
 N = 10
 nHalf = N / 2
+
+A = np.zeros((nHalf, nHalf))
+A[:, 0] = [-1] * nHalf
+for i in range(1, nHalf):
+    A[i-1:i+1, i] = [1] * 2
+
+Ainv = np.linalg.inv(A)
+v = np.zeros((nHalf, 1))
+v[0] = 1
+v[-1] = 1
 
 tic = time.time()
 
 n = range(1, N + 1)
+yComb = list(it.permutations(n, nHalf))
+
+# sort and circshift
+for i in range(len(yComb)):
+    val, idx = min((val, idx) for idx, val in enumerate(yComb[i]))
+    yComb[i] = list(np.roll(yComb[i], -idx))
+
+# remove repeats
+yCombUnique = set(map(tuple, yComb))
+
+sol = []
 nSet = set(n)
+for y in yCombUnique:
+    # ySet corresponds to outer node
+    # xSet corresponds to inner node
+    ySet = set(y)
+    xSet = nSet - ySet
 
-xComb = it.combinations(n, nHalf)
-I = np.identity(nHalf)
-A = I + np.roll(I, 1, axis=1)
-one = np.array([1] * nHalf).reshape((nHalf, 1))
-nFlip = lm.ncr(nHalf-1, 2)
+    for xi in xSet:
+        xx = np.matmul(Ainv, -np.reshape(np.array(y), (nHalf, 1)) - v * xi)
 
-solList = []
+        xCand = [xi]
+        xCand.extend(xx[1:, 0])
+        a = xx[0, 0]
 
-for xT in xComb:
-    xSet = set(xT)
-    ySet = nSet - xSet
+        if set(tuple(xCand)) == xSet:
+            # solution found, so collect the solution
+            xCandI = list(it.chain(xCand, xCand))
+            yx = [(yk, xCandI[i], xCandI[i+1]) for i, yk in enumerate(y)]
+            sol.append((yx, a))
 
-    xSorted = sorted(xSet)
-    ySorted = sorted(ySet)
-    a = xSorted[0] + xSorted[1] + ySorted[-1]
+# sorting
+solCat = []
+for s in sol:
+    yx, a = s
+    sum = ""
+    for v in it.chain(*yx):
+        sum += str(int(v))
+    solCat.append((sum, a))
 
-    for j in range(1, nFlip+2):
-        xk = np.array(xT).reshape((nHalf, 1))
-        xk[:j] = np.flipud(xk[:j])
+solCat = sorted(solCat, key=lambda x: int(x[0]))
 
-        yy = a * one - np.matmul(A, xk)
-        yy = yy.astype(np.int)
-
-        if ySet == set(yy.flatten()):
-            # solution found
-            sol = []
-
-            startIdx = np.argmin(yy)
-            for i, xIdx, yi in it.islice(it.cycle(zip(it.count(), A, yy)), startIdx, startIdx + nHalf):
-                idx = np.where(xIdx)[0]
-                if i == nHalf-1:
-                    idx = idx[::-1]
-
-                ii = list(it.chain(yi, xk[idx].flatten()))
-                sol.append(ii)
-
-            solList.append((a, sol))
-
-intStr = []
-for a, l in solList:
-    intStr.append(int("".join([str(i) for i in it.chain(*l)])))
-
-res = max(intStr)
+res = solCat[-1][0]
 
 toc = time.time()
 
-
-print "Result = %d, in %f s" % (res, toc - tic)
+print "Result = %s, in %f s" % (res, toc - tic)
