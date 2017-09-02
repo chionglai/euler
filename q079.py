@@ -19,7 +19,6 @@ Algorithm:
    right of the digit already in the solution list.
 """
 
-N = 3
 fn = "q079_data.txt"
 
 tic = time.time()
