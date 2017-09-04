@@ -1,4 +1,8 @@
-
+# Ignore data files
 *.txt
-
 *.pdf
+*.mat
+*.npz
+
+# Ignore files not ready for commit
+need_attention/
