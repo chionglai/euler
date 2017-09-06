@@ -1,6 +1,5 @@
 function day = dayOfWeek( date, month, year )
-%DAYOFWEEK Summary of this function goes here
-%   Detailed explanation goes here
+%DAYOFWEEK Get the day of week for a given date, month and year.
 
 % Based on the algorithm:
 % Another variation of the above algorithm likewise works with no lookup tables. A slight disadvantage is the unusual month and year counting convention. The formula is

@@ -1,7 +1,7 @@
 classdef BigInt
     %BIGINT Implementation of representing a very large signed integer.
     %   This class is to represent a very large signed integer that is
-    %   larger than the system's native integer type. It 
+    %   larger than the system's native integer type.
     
     properties(Dependent)
         % This is a dummy properties for getter and setter only. It is not
@@ -78,7 +78,7 @@ classdef BigInt
             
             validStr = vec2mat(validStr, obj.NumDigit);
             
-            obj.IntArr = str2num(validStr);
+            obj.IntArr = str2double(validStr);
         end
         
         function y = get.Value(obj)

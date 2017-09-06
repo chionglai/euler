@@ -1,5 +1,13 @@
 
-
+% function: largestDiagonalProd(x, N)
+% purpose: Calculate the diagonal product for a given matrix x.
+% input: 
+%   x: 2D matrix with number of columns >= N.
+%   N: Number of diagonal product to calculate.
+% output: 
+%   y: The maximum N diagonal product in matrix x.
+%   idx: The [row, col] index in matrix x that produces maximum N diagonal
+%       product y.
 function [y, idx] = largestDiagonalProd(x, N)
 
 [row, col] = size(x);

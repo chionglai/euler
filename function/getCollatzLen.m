@@ -1,6 +1,16 @@
+
+% function: getCollatzLen.m
+% purpose: Get the length of the Collatz sequence for a given positive
+%   integer x.
+% input:
+%   x = Positive integer whose Collatz length os to be determined
+%   fn = Filename to save/load calculated length of Collatz sequence. If
+%       not supplied, will default to 'collatz.mat'.
+% output:
+%   y = The length of Collatz sequence for the given x.
+%   collatzLen = The vector containing the length of Collatz sequence for
+%       all number saved in file fn.
 function [y, collatzLen] = getCollatzLen(x, fn)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
 
 if (nargin < 2),
     fn = 'collatz.mat'; % default filename

@@ -1,6 +1,13 @@
+
+% function: getDigit(x, n)
+% purpose: Get the n^th digit of a given integer x.
+% input:
+%   x = An integer
+%   n = The index of the digit in x to be obtained, starting from least
+%       significant as index 1.
+% output:
+%   y = The n^th digit of integer x.
 function [ y ] = getDigit( x, n )
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
 
 upper = floor(log10(abs(x))) + 1;
 

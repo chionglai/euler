@@ -1,5 +1,14 @@
 
 
+% function: largestAdjacentProd(x, N)
+% purpose: Calculate the adjacent product for a given matrix x.
+% input: 
+%   x: 2D matrix with number of columns >= N.
+%   N: Number of adjacent product to calculate.
+% output: 
+%   y: The maximum N adjacent product in matrix x.
+%   idx: The [row, col] index in matrix x that produces maximum N adjacent
+%       product y.
 function [y, idx] = largestAdjacentProd(x, N)
 
 [r, c] = size(x);

@@ -1,3 +1,13 @@
+
+% function: fibonacci.m
+% purpose: Get the n^th Fibanacci number.
+% inputs: 
+%   n = Index of the Fibanacci number to obtain.
+%   mode = (optional) 'single' to return only the n^th Fibanacci number.
+%       Otherwise, return a vector of Nx1 of 1st till n^th Fibonacci
+%       number.
+% outputs: 
+%   y = Fibonacci number.
 function [ y ] = fibonacci( n, varargin )
 
 % default optional arguments
