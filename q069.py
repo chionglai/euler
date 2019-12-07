@@ -20,7 +20,7 @@ Algorithm:
 N = 1000000
 
 tic = time.time()
-pList = lm.gen_prime(int(m.sqrt(N)))
+pList = lm.genPrimeEx(int(m.sqrt(N)))
 
 i = 5
 pp = np.prod(pList[:i])
